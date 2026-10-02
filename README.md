@@ -39,6 +39,15 @@ A full-stack web application for faculty profile management, research analytics,
 - AI/ML dependency stack researched & documented (`backend/docs/requirements_ai.txt`)
 - Enhanced `FacultyProfile` schema with NLP-ready text fields (`bio`, `skills`) and analytical annotations
 
+**Manan (Frontend):**
+- Next.js project scaffolded with TypeScript, Tailwind CSS, Shadcn UI
+- Global design system & CSS tokens (`frontend/app/globals.css`)
+- Root layout with Inter font, metadata, and Sprint 2 provider hooks (`frontend/app/layout.tsx`)
+- Login page — React Hook Form + Zod validation + Framer Motion animations (`frontend/app/(auth)/login/page.tsx`)
+- Register page — `@skit.ac.in` email enforcement, faculty-role info banner (`frontend/app/(auth)/register/page.tsx`)
+- Axios API client with JWT interceptor & 401 auto-redirect (`frontend/lib/api.ts`)
+- React Query (`TanStack Query`) provider with 5-min stale time config (`frontend/lib/providers.tsx`)
+
 ---
 
 ## Project Structure
@@ -48,11 +57,21 @@ SKIT_DS-2023-2027-11/
 ├── backend/
 │   ├── app/
 │   │   └── models/
-│   │       ├── base.py              # SQLAlchemy declarative base
-│   │       └── faculty_profile.py   # Core faculty schema (AI/ML annotated)
+│   │       ├── base.py                    # SQLAlchemy declarative base
+│   │       └── faculty_profile.py         # Core faculty schema (AI/ML annotated)
 │   └── docs/
-│       ├── analytics_architecture.md  # ML pipeline design (Mayank - Sprint 1)
-│       └── requirements_ai.txt        # AI/ML dependencies (Mayank - Sprint 1)
+│       ├── analytics_architecture.md      # ML pipeline design (Mayank - Sprint 1)
+│       └── requirements_ai.txt            # AI/ML dependencies (Mayank - Sprint 1)
+├── frontend/
+│   ├── app/
+│   │   ├── (auth)/
+│   │   │   ├── login/page.tsx             # Login UI — RHF + Zod + Framer Motion
+│   │   │   └── register/page.tsx          # Register UI — @skit.ac.in validation
+│   │   ├── globals.css                    # Tailwind CSS tokens & design system
+│   │   └── layout.tsx                     # Root layout with metadata
+│   └── lib/
+│       ├── api.ts                         # Axios client + JWT interceptor
+│       └── providers.tsx                  # React Query provider
 └── README.md
 ```
 
