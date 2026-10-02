@@ -1,41 +1,33 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, DateTime
-from sqlalchemy.orm import relationship
-from datetime import datetime
-from .base import Base
+from sqlalchemy import String, ForeignKey, Text
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from app.models.base import Base
+import uuid
 
 
 class FacultyProfile(Base):
     """
-    Sprint 1 (Mayank — AI/ML): Initial schema designed to support
-    downstream analytical workloads. Fields chosen to allow statistical
-    aggregation on publication counts, completeness scoring, and domain clustering.
-
-    Key analytical considerations:
-    - department_id kept as integer FK for easy GROUP BY queries
-    - bio + skills stored as Text for NLP keyword extraction (Sprint 3+)
-    - created_at / updated_at for time-series trend tracking
+    Sprint 1: Core faculty profile model.
+    Only essential identity fields are defined here.
+    Academic relations (publications, education, etc.) are added in Sprint 2+.
     """
     __tablename__ = "faculty_profiles"
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, unique=True, index=True, nullable=False)  # FK to User model (added Sprint 1)
+    id: Mapped[str] = mapped_column(
+        String, primary_key=True, default=lambda: str(uuid.uuid4())
+    )
+    user_id: Mapped[str] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), unique=True
+    )
 
-    # Identity fields — also used as profile completeness metrics
-    first_name = Column(String(50), nullable=False)
-    last_name = Column(String(50), nullable=False)
-    designation = Column(String(100), nullable=False)
-    department_id = Column(Integer, nullable=True)  # FK to Department table
+    # Personal Information
+    first_name: Mapped[str] = mapped_column(String, nullable=False)
+    last_name: Mapped[str] = mapped_column(String, nullable=False)
+    designation: Mapped[str] = mapped_column(String, nullable=False)
+    department: Mapped[str | None] = mapped_column(String)
+    bio: Mapped[str | None] = mapped_column(Text)
+    profile_image_url: Mapped[str | None] = mapped_column(String)
 
-    # Text fields — will be passed to NLP pipeline (TF-IDF, keyword extraction) in Sprint 3
-    bio = Column(Text, nullable=True)
-    skills = Column(Text, nullable=True)  # comma-separated; parsed by analytics service
+    # Sprint 1: One-to-one relationship back to the User model
+    user = relationship("User", back_populates="profile")
 
-    # Timestamps for trend analytics (publication rate over time, activity tracking)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    # Sprint 2+: Relational fields (publications, education, etc.) will be added here.
-    # Example planned metrics:
-    #   - publications.count()         → paper count per year
-    #   - publications.citations.sum() → h-index simulation
-    #   - achievements.count()         → profile completeness boost
+    # Sprint 2+: Academic relationships will be added here in future sprints.
