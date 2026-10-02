@@ -29,9 +29,15 @@ A full-stack web application for faculty profile management, research analytics,
 ### ✅ Sprint 1 (15 Sep – 15 Oct 2026) — Foundation & Access Management
 
 **Kunal (Backend):**
-- FastAPI project scaffolded with PostgreSQL/Render DB connection
-- SQLAlchemy base models (`base.py`, `faculty_profile.py`)
-- Initial DB migration setup
+- FastAPI app scaffolded with CORS middleware for Next.js (`backend/app/main.py`)
+- PostgreSQL connection via SQLAlchemy + env-based URL, SQLite fallback for local dev (`backend/app/db/session.py`)
+- JWT authentication — bcrypt password hashing + PyJWT token creation (`backend/app/core/security.py`)
+- Pydantic settings with `.env` + Render env var support (`backend/app/core/config.py`)
+- Auth API — `/register`, `/login`, `/me`, admin user management endpoints (`backend/app/api/auth.py`)
+- FastAPI dependency injection — JWT decode, session provider, role guards (`backend/app/api/deps.py`)
+- DB models — `User` (UUID PK, RBAC roles), `Department`, `FacultyProfile` (`backend/app/models/`)
+- Pydantic schemas — `UserCreate`, `UserResponse`, `UserAdminResponse`, `Token` (`backend/app/schemas/`)
+- Alembic migration setup wired to PostgreSQL via env (`backend/alembic/env.py`, `alembic.ini`)
 
 **Mayank (AI/ML):**
 - Analytics architecture designed & documented (`backend/docs/analytics_architecture.md`)
