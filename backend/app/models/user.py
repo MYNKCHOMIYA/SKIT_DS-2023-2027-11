@@ -10,6 +10,7 @@ class User(Base):
     Roles: admin | hod | faculty (default = faculty on registration).
     UUID primary keys are used for enterprise-grade security.
     """
+
     __tablename__ = "users"
 
     # Using UUIDs for enterprise security instead of sequential IDs
@@ -22,7 +23,9 @@ class User(Base):
 
     # Role-Based Access Control — always set to "faculty" on self-registration.
     # Admin must manually elevate roles after account creation.
-    role: Mapped[str] = mapped_column(String, default="faculty")  # admin | hod | faculty
+    role: Mapped[str] = mapped_column(
+        String, default="faculty"
+    )  # admin | hod | faculty
 
     department_id: Mapped[str | None] = mapped_column(ForeignKey("departments.id"))
 

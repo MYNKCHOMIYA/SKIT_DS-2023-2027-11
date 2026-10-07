@@ -3,12 +3,14 @@ from pydantic import BaseModel, EmailStr
 
 class UserCreate(BaseModel):
     """Schema for user registration — role is always forced to 'faculty' by the backend."""
+
     email: EmailStr
     password: str
 
 
 class UserResponse(BaseModel):
     """Public-safe user response schema."""
+
     id: str
     email: EmailStr
     is_active: bool
@@ -20,6 +22,7 @@ class UserResponse(BaseModel):
 
 class UserAdminResponse(BaseModel):
     """Extended user response for Admin-only endpoints."""
+
     id: str
     email: EmailStr
     is_active: bool
@@ -33,5 +36,6 @@ class UserAdminResponse(BaseModel):
 
 class UserRoleUpdate(BaseModel):
     """Schema for admin role-assignment endpoint."""
+
     role: str  # admin | hod | faculty
     department_id: str | None = None

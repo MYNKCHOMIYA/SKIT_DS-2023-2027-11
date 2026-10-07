@@ -7,7 +7,7 @@ from app.api import auth
 app = FastAPI(
     title="Generalized Faculty Portfolio System API",
     description="Backend API for managing faculty profiles, achievements, and statistics",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 # CORS Configuration for Frontend (Next.js)
@@ -32,4 +32,3 @@ def read_root():
 
 # Sprint 1: Auth router — register, login, /me, admin user management
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["Auth"])
-
