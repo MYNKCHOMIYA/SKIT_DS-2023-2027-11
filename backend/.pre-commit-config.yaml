@@ -1,0 +1,40 @@
+# Pre-commit configuration for the GFPMS backend
+# DevOps / Sprint 1
+#
+# Install hooks:  pre-commit install
+# Run manually:   pre-commit run --all-files
+# Update hooks:   pre-commit autoupdate
+
+repos:
+  # Black: opinionated Python code formatter
+  - repo: https://github.com/psf/black
+    rev: 24.4.2
+    hooks:
+      - id: black
+        language_version: python3.11
+        args: ["--line-length=88"]
+
+  # Flake8: PEP8 linting (critical errors only — E9, F63, F7, F82)
+  - repo: https://github.com/PyCQA/flake8
+    rev: 7.1.0
+    hooks:
+      - id: flake8
+        args: ["--select=E9,F63,F7,F82"]
+        exclude: ^alembic/
+
+  # isort: keep imports consistently sorted (Black-compatible profile)
+  - repo: https://github.com/PyCQA/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: ["--profile=black"]
+
+  # Trailing whitespace and end-of-file newlines
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ["--maxkb=500"]
