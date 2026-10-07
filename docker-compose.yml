@@ -1,0 +1,79 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# GFPMS — Generalized Faculty Portfolio Management System
+# DevOps / Sprint 1: Local Development Orchestration
+#
+# Usage:
+#   cp .env.example .env          # fill in your secrets
+#   docker compose up --build     # first run
+#   docker compose up             # subsequent runs
+#   docker compose down -v        # stop and wipe volumes
+# ─────────────────────────────────────────────────────────────────────────────
+
+version: "3.9"
+
+services:
+
+  # ── PostgreSQL Database ─────────────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: gfpms-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-gfpms_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-gfpms_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-gfpms_db}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"           # expose locally for pgAdmin / DBeaver
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-gfpms_user} -d ${POSTGRES_DB:-gfpms_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── FastAPI Backend ──────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: gfpms-backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-gfpms_user}:${POSTGRES_PASSWORD:-gfpms_pass}@db:5432/${POSTGRES_DB:-gfpms_db}
+      SECRET_KEY: ${SECRET_KEY}
+      ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 11520
+      CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
+      CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
+      CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy   # wait for DB healthcheck to pass
+    volumes:
+      - ./backend:/app               # hot-reload for development
+    command: >
+      sh -c "alembic upgrade head &&
+             uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+
+  # ── Next.js Frontend ─────────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
+    container_name: gfpms-frontend
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+    name: gfpms_postgres_data
