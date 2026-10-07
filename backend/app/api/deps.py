@@ -10,19 +10,10 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.db.session import SessionLocal
+from app.db.session import SessionLocal, get_db
 from app.models.user import User
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/auth/login")
-
-
-def get_db() -> Generator:
-    """Yield a DB session and guarantee it is closed after the request."""
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 SessionDep = Annotated[Session, Depends(get_db)]
