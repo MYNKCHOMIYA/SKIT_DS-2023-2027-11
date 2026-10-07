@@ -2,6 +2,7 @@
 Sprint 1: FastAPI dependency injection utilities.
 Provides database session and current-user resolution from the JWT token.
 """
+
 from typing import Annotated, Generator
 import jwt
 from fastapi import Depends, HTTPException, status
@@ -27,9 +28,7 @@ def get_db() -> Generator:
 SessionDep = Annotated[Session, Depends(get_db)]
 
 
-def get_current_user(
-    db: SessionDep, token: str = Depends(oauth2_scheme)
-) -> User:
+def get_current_user(db: SessionDep, token: str = Depends(oauth2_scheme)) -> User:
     """Decode JWT and return the corresponding User record."""
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -37,7 +36,9 @@ def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        payload = jwt.decode(
+            token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM]
+        )
         user_id: str | None = payload.get("sub")
         if user_id is None:
             raise credentials_exception

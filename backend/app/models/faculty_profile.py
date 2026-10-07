@@ -11,6 +11,7 @@ class FacultyProfile(Base):
     Only essential identity fields are defined here.
     Academic relations (publications, education, etc.) are added in Sprint 2+.
     """
+
     __tablename__ = "faculty_profiles"
 
     id: Mapped[str] = mapped_column(
@@ -25,16 +26,20 @@ class FacultyProfile(Base):
     last_name: Mapped[str] = mapped_column(String, nullable=False)
     designation: Mapped[str] = mapped_column(String, nullable=False)
     department: Mapped[str | None] = mapped_column(String)
-    
+
     # Text fields — will be passed to NLP pipeline (TF-IDF, keyword extraction) in Sprint 3
     bio: Mapped[str | None] = mapped_column(Text)
-    skills: Mapped[str | None] = mapped_column(Text)  # comma-separated; parsed by analytics service
-    
+    skills: Mapped[str | None] = mapped_column(
+        Text
+    )  # comma-separated; parsed by analytics service
+
     profile_image_url: Mapped[str | None] = mapped_column(String)
 
     # Timestamps for trend analytics (publication rate over time, activity tracking)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
 
     # Sprint 1: One-to-one relationship back to the User model
     user = relationship("User", back_populates="profile")
