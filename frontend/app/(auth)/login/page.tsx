@@ -80,7 +80,7 @@ export default function LoginPage() {
       toast.success("Login successful!");
       router.push("/");
     },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line
     onError: (error: any) => {
       setFormShake("idle");
       requestAnimationFrame(() => setFormShake("shake"));

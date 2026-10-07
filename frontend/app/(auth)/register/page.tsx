@@ -51,7 +51,7 @@ export default function RegisterPage() {
       toast.success("Registration successful! Please login.")
       router.push("/login")
     },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line
     onError: (error: any) => {
       toast.error(
         error.response?.data?.detail || "Registration failed. Please try again."
