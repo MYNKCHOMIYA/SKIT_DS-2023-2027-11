@@ -1,6 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.api import auth
+
 # Initialize FastAPI App
 app = FastAPI(
     title="Generalized Faculty Portfolio System API",
@@ -22,9 +24,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the Generalized Faculty Portfolio System API"}
 
-# Sprint 2/3/4: Include routers here
-# app.include_router(auth_router, prefix="/api/v1/auth", tags=["Auth"])
+
+# Sprint 1: Auth router — register, login, /me, admin user management
+app.include_router(auth.router, prefix="/api/v1/auth", tags=["Auth"])
+

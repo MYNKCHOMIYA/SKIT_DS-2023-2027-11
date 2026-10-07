@@ -8,9 +8,6 @@ import os
 # This adds your 'backend' folder to the Python path
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from logging.config import fileConfig
-
-# ... rest of the file
 # 1. Import your application config and Base model
 from app.core.config import settings
 from app.models.base import Base
@@ -19,13 +16,18 @@ from app.models.base import Base
 # (If you don't import them, Alembic won't detect the tables)
 from app.models.user import User
 from app.models.department import Department
+from app.models.faculty_profile import FacultyProfile
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 config = context.config
 
-# 3. Dynamically set the database URL from your environment variables
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+# 3. Dynamically set the database URL from your environment variables.
+#    Strip ?sslmode=require for local/CI PostgreSQL that doesn't need SSL.
+db_url = settings.DATABASE_URL
+if "?sslmode=require" in db_url:
+    db_url = db_url.replace("?sslmode=require", "")
+config.set_main_option("sqlalchemy.url", db_url)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
