@@ -56,7 +56,7 @@ const shakeVariants = {
 
 export default function LoginPage() {
   const router = useRouter();
-  const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [, setIsForgotPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formShake, setFormShake] = useState<"idle" | "shake">("idle");
 
@@ -80,6 +80,7 @@ export default function LoginPage() {
       toast.success("Login successful!");
       router.push("/");
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onError: (error: any) => {
       setFormShake("idle");
       requestAnimationFrame(() => setFormShake("shake"));
