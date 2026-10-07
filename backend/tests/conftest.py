@@ -34,6 +34,7 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 @pytest.fixture(scope="session", autouse=True)
 def create_tables():
     """Create all tables once at the start of the test session."""
+    import app.models  # Ensures all models are registered on Base.metadata
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)

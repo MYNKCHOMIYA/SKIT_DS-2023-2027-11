@@ -8,21 +8,17 @@ Tests JWT authentication endpoints built in Sprint 1:
   - Access the protected /me endpoint
   - Admin-only route protection
 """
-from fastapi.testclient import TestClient
-from app.main import app
 from app.core.config import settings
 
-client = TestClient(app)
 
-
-def test_root_returns_welcome():
+def test_root_returns_welcome(client):
     """GET / should return a 200 welcome message confirming the API is live."""
     response = client.get("/")
     assert response.status_code == 200
     assert "message" in response.json()
 
 
-def test_admin_route_requires_authentication():
+def test_admin_route_requires_authentication(client):
     """
     GET /api/v1/auth/users (admin-only) without a token must return 401.
     Ensures the endpoint is protected before any user exists in the system.
@@ -32,7 +28,7 @@ def test_admin_route_requires_authentication():
     assert response.json() == {"detail": "Not authenticated"}
 
 
-def test_login_with_unregistered_email_returns_401():
+def test_login_with_unregistered_email_returns_401(client):
     """
     POST /api/v1/auth/login with an email that doesn't exist must return 401.
     Confirms the backend does not reveal whether the email exists.
@@ -44,7 +40,7 @@ def test_login_with_unregistered_email_returns_401():
     assert response.status_code == 401
 
 
-def test_get_me_without_token_returns_401():
+def test_get_me_without_token_returns_401(client):
     """
     GET /api/v1/auth/me without Bearer token must return 401 Not Authenticated.
     """
