@@ -20,6 +20,20 @@ DEPARTMENT_NAME = "Department of Computer Science & Engineering"
 # -------------------------------------------------------------
 
 
+# Map GitHub handles and alias variations to official student names
+STUDENT_ALIASES = {
+    "MananGarg0026": "Manan Garg",
+    "Manan Garg": "Manan Garg",
+    "Mayank": "Mayank Kumar",
+    "Mayank Kumar": "Mayank Kumar",
+    "MYNKCHOMIYA": "Mayank Kumar",
+    "KunalGupta77": "Kunal Gupta",
+    "Kunal Gupta": "Kunal Gupta",
+    "KrishanKumar": "Krishan Kumar Jayaswal",
+    "Krishan Kumar Jayaswal": "Krishan Kumar Jayaswal",
+}
+
+
 def get_repo_info():
     """Extracts the exact repository name and branch reliably in GitHub Codespaces."""
     repo_name = "Project-Repository"
@@ -46,7 +60,7 @@ def get_git_metrics(interval="weekly"):
     Supported intervals: 'weekly', 'monthly', 'final'
     """
     today = datetime.date.today()
-    git_args = ['git', 'log', '--no-merges', '--pretty=format:COMMIT|||%h|||%an|||%ad|||%s', '--date=short', '--numstat']
+    git_args = ['git', 'log', '--no-merges', '--use-mailmap', '--pretty=format:COMMIT|||%h|||%aN|||%ad|||%s', '--date=short', '--numstat']
 
     if interval == "weekly":
         since_date = (today - datetime.timedelta(days=7)).strftime("%Y-%m-%d")
@@ -80,18 +94,20 @@ def get_git_metrics(interval="weekly"):
             parts = line.split('|||')
             if len(parts) >= 5:
                 sha = parts[1].strip()
-                author = parts[2].strip()
+                raw_author = parts[2].strip()
                 date_str = parts[3].strip()
                 msg = parts[4].strip()
             else:
                 continue
 
             # --- IGNORE AUTOMATED BOTS ---
-            if "bot" in author.lower() or "github-actions" in author.lower():
+            if "bot" in raw_author.lower() or "github-actions" in raw_author.lower():
                 current_author = None
                 continue
             # -----------------------------
 
+            # Canonicalize student author name
+            author = STUDENT_ALIASES.get(raw_author, raw_author)
             current_author = author
             current_date_str = date_str
 
@@ -142,10 +158,12 @@ def create_charts(students, timeline_activity, interval):
     # 2. Net LOC Bar Chart
     if authors:
         net_loc = [students[a]["added"] - students[a]["deleted"] for a in authors]
-        colors_list = ['#4E79A7', '#F28E2B', '#E15759', '#76B7B2', '#59A14F']
-        ax2.bar(authors, net_loc, color=colors_list[:len(authors)], width=0.45)
+        colors_list = ['#2563EB', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', '#06B6D4']
+        bar_colors = [colors_list[i % len(colors_list)] for i in range(len(authors))]
+        ax2.bar(authors, net_loc, color=bar_colors, width=0.45)
         ax2.set_title("Net Lines of Code Written", fontsize=10, fontweight='bold')
         ax2.set_ylabel("LOC (Added - Deleted)")
+        ax2.tick_params(axis='x', rotation=15, labelsize=8)
         ax2.grid(axis='y', linestyle='--', alpha=0.5)
     else:
         ax2.text(0.5, 0.5, "No LOC changes recorded", ha='center', va='center')
