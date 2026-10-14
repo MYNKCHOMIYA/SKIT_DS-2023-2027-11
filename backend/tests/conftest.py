@@ -20,12 +20,12 @@ from app.models.base import Base
 from app.db.session import get_db
 
 # ── In-memory SQLite engine for isolated, fast unit tests ────────────────────
-SQLITE_URL = "sqlite://"   # pure in-memory; wiped after process exits
+SQLITE_URL = "sqlite://"  # pure in-memory; wiped after process exits
 
 engine = create_engine(
     SQLITE_URL,
     connect_args={"check_same_thread": False},
-    poolclass=StaticPool,   # reuse single connection across threads
+    poolclass=StaticPool,  # reuse single connection across threads
 )
 
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -35,6 +35,7 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 def create_tables():
     """Create all tables once at the start of the test session."""
     import app.models  # Ensures all models are registered on Base.metadata
+
     Base.metadata.create_all(bind=engine)
     yield
     Base.metadata.drop_all(bind=engine)
@@ -63,6 +64,7 @@ def client(db_session):
     FastAPI TestClient that uses the isolated in-memory DB session.
     Overrides the get_db dependency for the duration of each test.
     """
+
     def override_get_db():
         try:
             yield db_session

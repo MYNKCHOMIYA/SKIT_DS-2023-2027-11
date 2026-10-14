@@ -8,6 +8,7 @@ Tests JWT authentication endpoints built in Sprint 1:
   - Access the protected /me endpoint
   - Admin-only route protection
 """
+
 from app.core.config import settings
 
 

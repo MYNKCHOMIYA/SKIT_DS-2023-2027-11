@@ -45,6 +45,7 @@ def create_education(
     return db_edu
 
 
+@router.get("/", response_model=List[EducationResponse])
 @router.get("/me", response_model=List[EducationResponse])
 def read_my_education(
     session: SessionDep, current_user: User = Depends(get_current_active_user)

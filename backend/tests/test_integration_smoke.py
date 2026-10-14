@@ -16,8 +16,8 @@ Mark: [smoke] — these run in the CI integration-smoke job.
 
 import pytest
 
-
 # ── [SMOKE] Health Check ──────────────────────────────────────────────────────
+
 
 @pytest.mark.smoke
 def test_root_health_check(client):
@@ -33,6 +33,7 @@ def test_root_health_check(client):
 
 # ── [SMOKE] Auth: Register ───────────────────────────────────────────────────
 
+
 @pytest.mark.smoke
 def test_register_new_user(client):
     """
@@ -46,9 +47,9 @@ def test_register_new_user(client):
     assert response.status_code == 201
     data = response.json()
     assert data["email"] == "smoke_faculty@skit.ac.in"
-    assert data["role"] == "faculty"        # role must always default to faculty
+    assert data["role"] == "faculty"  # role must always default to faculty
     assert data["is_active"] is True
-    assert "hashed_password" not in data    # never expose the hash
+    assert "hashed_password" not in data  # never expose the hash
 
 
 @pytest.mark.smoke
@@ -66,6 +67,7 @@ def test_register_duplicate_email_rejected(client, registered_user):
 
 # ── [SMOKE] Auth: Login ──────────────────────────────────────────────────────
 
+
 @pytest.mark.smoke
 def test_login_returns_jwt_token(client, registered_user):
     """
@@ -79,7 +81,7 @@ def test_login_returns_jwt_token(client, registered_user):
     data = response.json()
     assert "access_token" in data
     assert data["token_type"] == "bearer"
-    assert len(data["access_token"]) > 20    # sanity check: token is non-trivial
+    assert len(data["access_token"]) > 20  # sanity check: token is non-trivial
 
 
 @pytest.mark.smoke
@@ -107,6 +109,7 @@ def test_login_nonexistent_user_rejected(client):
 
 
 # ── [SMOKE] Auth: Protected Endpoint ─────────────────────────────────────────
+
 
 @pytest.mark.smoke
 def test_get_me_with_valid_token(client, auth_headers):

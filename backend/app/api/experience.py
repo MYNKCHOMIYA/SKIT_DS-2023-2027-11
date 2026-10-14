@@ -43,6 +43,7 @@ def create_experience(
     return db_exp
 
 
+@router.get("/", response_model=List[ExperienceResponse])
 @router.get("/me", response_model=List[ExperienceResponse])
 def read_my_experience(
     session: SessionDep, current_user: User = Depends(get_current_active_user)

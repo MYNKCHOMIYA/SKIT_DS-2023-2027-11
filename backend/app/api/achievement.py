@@ -43,6 +43,7 @@ def create_achievement(
     return db_ach
 
 
+@router.get("/", response_model=List[AchievementResponse])
 @router.get("/me", response_model=List[AchievementResponse])
 def read_my_achievements(
     session: SessionDep, current_user: User = Depends(get_current_active_user)
