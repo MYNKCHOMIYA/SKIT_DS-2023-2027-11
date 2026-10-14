@@ -7,9 +7,8 @@ from datetime import datetime
 
 class FacultyProfile(Base):
     """
-    Sprint 1: Core faculty profile model.
-    Only essential identity fields are defined here.
-    Academic relations (publications, education, etc.) are added in Sprint 2+.
+    Sprint 2 (Kunal - Backend): Extended faculty profile model.
+    Adds professional info fields and relationships to academic records.
     """
 
     __tablename__ = "faculty_profiles"
@@ -33,7 +32,18 @@ class FacultyProfile(Base):
         Text
     )  # comma-separated; parsed by analytics service
 
+    phone_number: Mapped[str | None] = mapped_column(String)
     profile_image_url: Mapped[str | None] = mapped_column(String)
+
+    # Sprint 2: Professional & online presence fields
+    employee_id: Mapped[str | None] = mapped_column(String, unique=True, index=True)
+    website: Mapped[str | None] = mapped_column(String)
+    linkedin: Mapped[str | None] = mapped_column(String)
+    google_scholar: Mapped[str | None] = mapped_column(String)
+    orcid: Mapped[str | None] = mapped_column(String)
+    office_location: Mapped[str | None] = mapped_column(String)
+    specialization: Mapped[str | None] = mapped_column(String)
+    areas_of_interest: Mapped[str | None] = mapped_column(String)
 
     # Timestamps for trend analytics (publication rate over time, activity tracking)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
@@ -44,4 +54,13 @@ class FacultyProfile(Base):
     # Sprint 1: One-to-one relationship back to the User model
     user = relationship("User", back_populates="profile")
 
-    # Sprint 2+: Academic relationships will be added here in future sprints.
+    # Sprint 2: Academic relationships
+    education = relationship(
+        "Education", back_populates="faculty", cascade="all, delete-orphan"
+    )
+    experience = relationship(
+        "Experience", back_populates="faculty", cascade="all, delete-orphan"
+    )
+    achievements = relationship(
+        "Achievement", back_populates="faculty", cascade="all, delete-orphan"
+    )
