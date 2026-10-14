@@ -9,7 +9,8 @@ and subsequent ML completeness scoring (Sprint 3 / Sprint 4).
 
 import datetime
 import uuid
-from app.db.session import SessionLocal
+from app.db.session import SessionLocal, engine
+from app.models.base import Base
 from app.core.security import get_password_hash
 from app.models.user import User
 from app.models.department import Department
@@ -20,6 +21,7 @@ from app.models.achievement import Achievement
 
 
 def seed_mock_data():
+    Base.metadata.create_all(bind=engine)
     db = SessionLocal()
     try:
         print("🌱 Seeding Sprint 2 mock data...")
