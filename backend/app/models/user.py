@@ -18,7 +18,7 @@ class User(Base):
         String, primary_key=True, default=lambda: str(uuid.uuid4())
     )
     email: Mapped[str] = mapped_column(String, unique=True, index=True, nullable=False)
-    hashed_password: Mapped[str] = mapped_column(String, nullable=False)
+    hashed_password: Mapped[str | None] = mapped_column(String, nullable=True)
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
 
     # Role-Based Access Control — always set to "faculty" on self-registration.
@@ -26,6 +26,14 @@ class User(Base):
     role: Mapped[str] = mapped_column(
         String, default="faculty"
     )  # admin | hod | faculty
+
+    # Authentication Provider & OAuth Identifiers
+    auth_provider: Mapped[str] = mapped_column(
+        String, default="local"
+    )  # "local" | "google"
+    google_id: Mapped[str | None] = mapped_column(
+        String, unique=True, index=True, nullable=True
+    )
 
     department_id: Mapped[str | None] = mapped_column(ForeignKey("departments.id"))
 
