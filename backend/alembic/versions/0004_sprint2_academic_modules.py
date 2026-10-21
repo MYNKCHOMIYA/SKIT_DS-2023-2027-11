@@ -1,14 +1,14 @@
 """Sprint 2 & 3: Academic and Research modules
 Publications, Projects, Patents, Certifications, Teaching, Student Guidance, Workshops, Activity Logs, Notifications
 
-Revision ID: 0004_sprint2_academic_research_modules
+Revision ID: 0004_sprint2_academic_modules
 Revises: 0003_sprint3_google_oauth
 Create Date: 2026-10-21 20:30:00.000000
 """
 from alembic import op
 import sqlalchemy as sa
 
-revision = "0004_sprint2_academic_research_modules"
+revision = "0004_sprint2_academic_modules"
 down_revision = "0003_sprint3_google_oauth"
 branch_labels = None
 depends_on = None
