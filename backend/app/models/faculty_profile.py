@@ -54,13 +54,36 @@ class FacultyProfile(Base):
     # Sprint 1: One-to-one relationship back to the User model
     user = relationship("User", back_populates="profile")
 
-    # Sprint 2: Academic relationships
+    # Academic & Research relationships
+    publications = relationship(
+        "Publication", back_populates="faculty", cascade="all, delete-orphan"
+    )
     education = relationship(
         "Education", back_populates="faculty", cascade="all, delete-orphan"
     )
     experience = relationship(
         "Experience", back_populates="faculty", cascade="all, delete-orphan"
     )
+    projects = relationship(
+        "Project", back_populates="faculty", cascade="all, delete-orphan"
+    )
     achievements = relationship(
         "Achievement", back_populates="faculty", cascade="all, delete-orphan"
+    )
+    patents = relationship(
+        "Patent", back_populates="faculty_profile", cascade="all, delete-orphan"
+    )
+    certifications = relationship(
+        "Certification", back_populates="faculty_profile", cascade="all, delete-orphan"
+    )
+    teaching = relationship(
+        "Teaching", back_populates="faculty_profile", cascade="all, delete-orphan"
+    )
+    student_guidance = relationship(
+        "StudentGuidance",
+        back_populates="faculty_profile",
+        cascade="all, delete-orphan",
+    )
+    workshops = relationship(
+        "Workshop", back_populates="faculty_profile", cascade="all, delete-orphan"
     )
