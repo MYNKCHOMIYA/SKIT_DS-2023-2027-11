@@ -64,12 +64,20 @@ jobs:
         run: |
           flake8 app/ --count --select=E9,F63,F7,F82 --show-source --statistics
 
+      - name: Verify PostgreSQL Ready
+        run: |
+          for i in {1..30}; do
+            python -c "import socket; s = socket.socket(); s.connect(('127.0.0.1', 5432)); s.close()" 2>/dev/null && echo "PostgreSQL reachable on 127.0.0.1:5432!" && break
+            echo "Waiting for PostgreSQL on 127.0.0.1:5432..."
+            sleep 1
+          done
+
       - name: Run Alembic Migrations (Test DB)
         working-directory: ./backend
         env:
           POSTGRES_USER: ci_user
           POSTGRES_PASSWORD: ci_password
-          POSTGRES_SERVER: localhost
+          POSTGRES_SERVER: 127.0.0.1
           POSTGRES_DB: ci_test_db
           SECRET_KEY: ci_secret_key_sprint1_testing_only
           ALGORITHM: HS256
@@ -84,7 +92,7 @@ jobs:
           PYTHONPATH: .
           POSTGRES_USER: ci_user
           POSTGRES_PASSWORD: ci_password
-          POSTGRES_SERVER: localhost
+          POSTGRES_SERVER: 127.0.0.1
           POSTGRES_DB: ci_test_db
           SECRET_KEY: ci_secret_key_sprint1_testing_only
           ALGORITHM: HS256
@@ -165,12 +173,20 @@ jobs:
           pip install -r requirements.txt
           pip install pytest httpx
 
+      - name: Verify PostgreSQL Ready
+        run: |
+          for i in {1..30}; do
+            python -c "import socket; s = socket.socket(); s.connect(('127.0.0.1', 5432)); s.close()" 2>/dev/null && echo "PostgreSQL reachable on 127.0.0.1:5432!" && break
+            echo "Waiting for PostgreSQL on 127.0.0.1:5432..."
+            sleep 1
+          done
+
       - name: Run Alembic Migrations
         working-directory: ./backend
         env:
           POSTGRES_USER: ci_user
           POSTGRES_PASSWORD: ci_password
-          POSTGRES_SERVER: localhost
+          POSTGRES_SERVER: 127.0.0.1
           POSTGRES_DB: ci_test_db
           SECRET_KEY: ci_secret_key_sprint1_testing_only
           ALGORITHM: HS256
@@ -185,7 +201,7 @@ jobs:
           PYTHONPATH: .
           POSTGRES_USER: ci_user
           POSTGRES_PASSWORD: ci_password
-          POSTGRES_SERVER: localhost
+          POSTGRES_SERVER: 127.0.0.1
           POSTGRES_DB: ci_test_db
           SECRET_KEY: ci_secret_key_sprint1_testing_only
           ALGORITHM: HS256

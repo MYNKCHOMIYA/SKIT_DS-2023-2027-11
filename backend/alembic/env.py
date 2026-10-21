@@ -14,6 +14,7 @@ from app.models.base import Base
 
 # 2. Import ALL your models here so Alembic can see them!
 # (If you don't import them, Alembic won't detect the tables)
+import app.models  # noqa: F401
 from app.models.user import User
 from app.models.department import Department
 from app.models.faculty_profile import FacultyProfile
@@ -24,8 +25,10 @@ config = context.config
 
 # 3. Dynamically set the database URL from your environment variables.
 #    Strip ?sslmode=require for local/CI PostgreSQL that doesn't need SSL.
-db_url = settings.DATABASE_URL
-if "?sslmode=require" in db_url:
+db_url = os.getenv("DATABASE_URL", settings.DATABASE_URL)
+if "?sslmode=require" in db_url and (
+    "localhost" in db_url or "127.0.0.1" in db_url
+):
     db_url = db_url.replace("?sslmode=require", "")
 config.set_main_option("sqlalchemy.url", db_url)
 
