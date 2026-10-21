@@ -20,9 +20,7 @@ def startup_db_init():
             try:
                 columns = [
                     col[1]
-                    for col in conn.execute(
-                        text("PRAGMA table_info(users)")
-                    ).fetchall()
+                    for col in conn.execute(text("PRAGMA table_info(users)")).fetchall()
                 ]
                 if columns:
                     if "auth_provider" not in columns:

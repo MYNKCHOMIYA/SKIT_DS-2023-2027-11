@@ -228,17 +228,9 @@ def get_or_create_google_user(
 
     # 3. Provision or enrich FacultyProfile
     if not user.profile:
-        first = (
-            given_name
-            or (name.split()[0] if name and name.strip() else "Faculty")
-        )
-        last = (
-            family_name
-            or (
-                " ".join(name.split()[1:])
-                if name and len(name.split()) > 1
-                else "Member"
-            )
+        first = given_name or (name.split()[0] if name and name.strip() else "Faculty")
+        last = family_name or (
+            " ".join(name.split()[1:]) if name and len(name.split()) > 1 else "Member"
         )
         profile = FacultyProfile(
             user_id=user.id,
@@ -287,9 +279,7 @@ def get_google_auth_url() -> Any:
         "prompt": "select_account",
         "hd": settings.ALLOWED_COLLEGE_DOMAIN,
     }
-    return {
-        "url": f"https://accounts.google.com/o/oauth2/v2/auth?{urlencode(params)}"
-    }
+    return {"url": f"https://accounts.google.com/o/oauth2/v2/auth?{urlencode(params)}"}
 
 
 @router.get("/google/login")
@@ -415,9 +405,7 @@ async def google_callback(
     )
 
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    app_jwt = create_access_token(
-        subject=user.id, expires_delta=access_token_expires
-    )
+    app_jwt = create_access_token(subject=user.id, expires_delta=access_token_expires)
 
     return RedirectResponse(
         url=f"{settings.FRONTEND_URL}/auth/callback?token={app_jwt}",
@@ -488,9 +476,7 @@ async def google_verify_credential(
     )
 
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    app_jwt = create_access_token(
-        subject=user.id, expires_delta=access_token_expires
-    )
+    app_jwt = create_access_token(subject=user.id, expires_delta=access_token_expires)
 
     return {
         "access_token": app_jwt,

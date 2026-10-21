@@ -91,6 +91,8 @@ jobs:
           CLOUDINARY_CLOUD_NAME: test
           CLOUDINARY_API_KEY: test
           CLOUDINARY_API_SECRET: test
+          GOOGLE_CLIENT_ID: test_ci_google_client_id.apps.googleusercontent.com
+          GOOGLE_CLIENT_SECRET: test_ci_google_client_secret
         run: |
           pytest tests/ -v \
             --cov=app \
@@ -190,4 +192,6 @@ jobs:
           CLOUDINARY_CLOUD_NAME: test
           CLOUDINARY_API_KEY: test
           CLOUDINARY_API_SECRET: test
-        run: pytest tests/ -v -k "smoke"
+          GOOGLE_CLIENT_ID: test_ci_google_client_id.apps.googleusercontent.com
+          GOOGLE_CLIENT_SECRET: test_ci_google_client_secret
+        run: pytest tests/ -v -m "smoke or sprint2"
