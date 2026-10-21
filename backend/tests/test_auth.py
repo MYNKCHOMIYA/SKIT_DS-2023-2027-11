@@ -68,7 +68,9 @@ def test_google_login_redirect_unconfigured(client, monkeypatch):
     """
     monkeypatch.setattr(settings, "GOOGLE_CLIENT_ID", "")
     monkeypatch.setattr(settings, "GOOGLE_CLIENT_SECRET", "")
-    response = client.get(f"{settings.API_V1_STR}/auth/google/login", follow_redirects=False)
+    response = client.get(
+        f"{settings.API_V1_STR}/auth/google/login", follow_redirects=False
+    )
     assert response.status_code == 302
     assert "error" in response.headers["location"]
 
@@ -77,9 +79,13 @@ def test_google_login_redirect_configured(client, monkeypatch):
     """
     When configured, GET /api/v1/auth/google/login redirects to Google consent screen.
     """
-    monkeypatch.setattr(settings, "GOOGLE_CLIENT_ID", "test-client-id.apps.googleusercontent.com")
+    monkeypatch.setattr(
+        settings, "GOOGLE_CLIENT_ID", "test-client-id.apps.googleusercontent.com"
+    )
     monkeypatch.setattr(settings, "GOOGLE_CLIENT_SECRET", "test-secret")
-    response = client.get(f"{settings.API_V1_STR}/auth/google/login", follow_redirects=False)
+    response = client.get(
+        f"{settings.API_V1_STR}/auth/google/login", follow_redirects=False
+    )
     assert response.status_code == 302
     assert "accounts.google.com" in response.headers["location"]
     assert "client_id=test-client-id" in response.headers["location"]
@@ -89,7 +95,9 @@ def test_google_auth_url_endpoint(client, monkeypatch):
     """
     GET /api/v1/auth/google/url returns json auth URL when configured.
     """
-    monkeypatch.setattr(settings, "GOOGLE_CLIENT_ID", "test-client-id.apps.googleusercontent.com")
+    monkeypatch.setattr(
+        settings, "GOOGLE_CLIENT_ID", "test-client-id.apps.googleusercontent.com"
+    )
     monkeypatch.setattr(settings, "GOOGLE_CLIENT_SECRET", "test-secret")
     response = client.get(f"{settings.API_V1_STR}/auth/google/url")
     assert response.status_code == 200
@@ -119,20 +127,24 @@ def test_google_callback_creates_user_and_profile(client, monkeypatch, db_sessio
 
     async def mock_post(self, url, **kwargs):
         if "oauth2.googleapis.com/token" in str(url):
-            return MockResponse({"access_token": "mock-access-token", "token_type": "Bearer"})
+            return MockResponse(
+                {"access_token": "mock-access-token", "token_type": "Bearer"}
+            )
         return MockResponse({}, status_code=400)
 
     async def mock_get(self, url, **kwargs):
         if "userinfo" in str(url):
-            return MockResponse({
-                "sub": "google-sub-12345",
-                "email": "prof.test@skit.ac.in",
-                "name": "Prof Test User",
-                "given_name": "Prof",
-                "family_name": "Test User",
-                "picture": "https://example.com/avatar.png",
-                "email_verified": True,
-            })
+            return MockResponse(
+                {
+                    "sub": "google-sub-12345",
+                    "email": "prof.test@skit.ac.in",
+                    "name": "Prof Test User",
+                    "given_name": "Prof",
+                    "family_name": "Test User",
+                    "picture": "https://example.com/avatar.png",
+                    "email_verified": True,
+                }
+            )
         return MockResponse({}, status_code=400)
 
     monkeypatch.setattr(httpx.AsyncClient, "post", mock_post)
@@ -157,7 +169,11 @@ def test_google_callback_creates_user_and_profile(client, monkeypatch, db_sessio
     assert user.role == "faculty"
 
     # Check profile was provisioned
-    profile = db_session.query(FacultyProfile).filter(FacultyProfile.user_id == user.id).first()
+    profile = (
+        db_session.query(FacultyProfile)
+        .filter(FacultyProfile.user_id == user.id)
+        .first()
+    )
     assert profile is not None
     assert profile.first_name == "Prof"
     assert profile.last_name == "Test User"
@@ -182,15 +198,17 @@ def test_google_verify_credential_endpoint(client, monkeypatch, db_session):
 
     async def mock_get(self, url, **kwargs):
         if "tokeninfo" in str(url):
-            return MockResponse({
-                "sub": "google-onetap-999",
-                "email": "onetap.user@skit.ac.in",
-                "name": "OneTap User",
-                "given_name": "OneTap",
-                "family_name": "User",
-                "picture": "https://example.com/onetap.jpg",
-                "email_verified": "true",
-            })
+            return MockResponse(
+                {
+                    "sub": "google-onetap-999",
+                    "email": "onetap.user@skit.ac.in",
+                    "name": "OneTap User",
+                    "given_name": "OneTap",
+                    "family_name": "User",
+                    "picture": "https://example.com/onetap.jpg",
+                    "email_verified": "true",
+                }
+            )
         return MockResponse({}, status_code=400)
 
     monkeypatch.setattr(httpx.AsyncClient, "get", mock_get)
@@ -232,7 +250,9 @@ def test_register_rejects_fake_and_placeholder_emails(client):
             f"{settings.API_V1_STR}/auth/register",
             json={"email": fake_email, "password": "Password123!"},
         )
-        assert response.status_code == 422, f"Expected 422 for {fake_email}, got {response.status_code}"
+        assert (
+            response.status_code == 422
+        ), f"Expected 422 for {fake_email}, got {response.status_code}"
 
 
 def test_google_callback_rejects_non_skit_google_account(client, monkeypatch):
@@ -256,13 +276,15 @@ def test_google_callback_rejects_non_skit_google_account(client, monkeypatch):
         return MockResponse({"access_token": "mock-token", "token_type": "Bearer"})
 
     async def mock_get(self, url, **kwargs):
-        return MockResponse({
-            "sub": "non-skit-google-user",
-            "email": "personal.account@gmail.com",
-            "name": "Personal User",
-            "picture": "https://example.com/pic.jpg",
-            "email_verified": True,
-        })
+        return MockResponse(
+            {
+                "sub": "non-skit-google-user",
+                "email": "personal.account@gmail.com",
+                "name": "Personal User",
+                "picture": "https://example.com/pic.jpg",
+                "email_verified": True,
+            }
+        )
 
     monkeypatch.setattr(httpx.AsyncClient, "post", mock_post)
     monkeypatch.setattr(httpx.AsyncClient, "get", mock_get)
@@ -275,5 +297,3 @@ def test_google_callback_rejects_non_skit_google_account(client, monkeypatch):
     redirect_url = response.headers["location"]
     assert "error" in redirect_url
     assert "skit.ac.in" in redirect_url
-
-

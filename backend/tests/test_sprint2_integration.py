@@ -21,7 +21,6 @@ Mark: [sprint2] — integrated in the CI backend-ci and integration-smoke jobs.
 import pytest
 from app.core.config import settings
 
-
 # ── Google OAuth Flow Integration ─────────────────────────────────────────────
 
 
@@ -52,7 +51,9 @@ def test_google_login_redirect_returns_302_when_configured(client, monkeypatch):
     - Include the client_id and scope parameters
     - Include the hd (hosted domain) hint for @skit.ac.in filtering
     """
-    monkeypatch.setattr(settings, "GOOGLE_CLIENT_ID", "test-client-id.apps.googleusercontent.com")
+    monkeypatch.setattr(
+        settings, "GOOGLE_CLIENT_ID", "test-client-id.apps.googleusercontent.com"
+    )
     monkeypatch.setattr(settings, "GOOGLE_CLIENT_SECRET", "test-google-secret-value")
 
     response = client.get(
@@ -68,7 +69,9 @@ def test_google_login_redirect_returns_302_when_configured(client, monkeypatch):
 
 
 @pytest.mark.sprint2
-def test_google_login_redirect_when_not_configured_returns_302_with_error(client, monkeypatch):
+def test_google_login_redirect_when_not_configured_returns_302_with_error(
+    client, monkeypatch
+):
     """
     SPRINT2: GET /api/v1/auth/google/login when OAuth is not configured
     must redirect to the frontend login page with an error message.
@@ -93,7 +96,9 @@ def test_google_oauth_url_json_endpoint_returns_consent_url(client, monkeypatch)
     SPRINT2: GET /api/v1/auth/google/url must return JSON with auth URL.
     Supports SPA (Single Page App) OAuth flows where we cannot do server redirects.
     """
-    monkeypatch.setattr(settings, "GOOGLE_CLIENT_ID", "spa-client-id.apps.googleusercontent.com")
+    monkeypatch.setattr(
+        settings, "GOOGLE_CLIENT_ID", "spa-client-id.apps.googleusercontent.com"
+    )
     monkeypatch.setattr(settings, "GOOGLE_CLIENT_SECRET", "spa-secret")
 
     response = client.get(f"{settings.API_V1_STR}/auth/google/url")
@@ -128,13 +133,15 @@ def test_google_callback_rejects_non_skit_domain_email(client, monkeypatch):
         return MockResponse({"access_token": "mock-token", "token_type": "Bearer"})
 
     async def mock_get(self, url, **kwargs):
-        return MockResponse({
-            "sub": "external-google-user-1234",
-            "email": "external.user@gmail.com",
-            "name": "External User",
-            "picture": "https://example.com/pic.png",
-            "email_verified": True,
-        })
+        return MockResponse(
+            {
+                "sub": "external-google-user-1234",
+                "email": "external.user@gmail.com",
+                "name": "External User",
+                "picture": "https://example.com/pic.png",
+                "email_verified": True,
+            }
+        )
 
     monkeypatch.setattr(httpx.AsyncClient, "post", mock_post)
     monkeypatch.setattr(httpx.AsyncClient, "get", mock_get)
@@ -174,18 +181,22 @@ def test_google_callback_provisions_user_and_profile_for_skit_email(
             return self._json_data
 
     async def mock_post(self, url, **kwargs):
-        return MockResponse({"access_token": "google-access-token", "token_type": "Bearer"})
+        return MockResponse(
+            {"access_token": "google-access-token", "token_type": "Bearer"}
+        )
 
     async def mock_get(self, url, **kwargs):
-        return MockResponse({
-            "sub": "g-integration-sub-99999",
-            "email": "integration.faculty@skit.ac.in",
-            "name": "Integration Faculty",
-            "given_name": "Integration",
-            "family_name": "Faculty",
-            "picture": "https://example.com/integration-avatar.png",
-            "email_verified": True,
-        })
+        return MockResponse(
+            {
+                "sub": "g-integration-sub-99999",
+                "email": "integration.faculty@skit.ac.in",
+                "name": "Integration Faculty",
+                "given_name": "Integration",
+                "family_name": "Faculty",
+                "picture": "https://example.com/integration-avatar.png",
+                "email_verified": True,
+            }
+        )
 
     monkeypatch.setattr(httpx.AsyncClient, "post", mock_post)
     monkeypatch.setattr(httpx.AsyncClient, "get", mock_get)
@@ -204,9 +215,11 @@ def test_google_callback_provisions_user_and_profile_for_skit_email(
     from app.models.user import User
     from app.models.faculty_profile import FacultyProfile
 
-    user = db_session.query(User).filter(
-        User.email == "integration.faculty@skit.ac.in"
-    ).first()
+    user = (
+        db_session.query(User)
+        .filter(User.email == "integration.faculty@skit.ac.in")
+        .first()
+    )
     assert user is not None
     assert user.auth_provider == "google"
     assert user.google_id == "g-integration-sub-99999"
@@ -214,9 +227,11 @@ def test_google_callback_provisions_user_and_profile_for_skit_email(
     # Google accounts receive an unguessable random password hash so direct empty login is prevented
     assert user.hashed_password is not None
 
-    profile = db_session.query(FacultyProfile).filter(
-        FacultyProfile.user_id == user.id
-    ).first()
+    profile = (
+        db_session.query(FacultyProfile)
+        .filter(FacultyProfile.user_id == user.id)
+        .first()
+    )
     assert profile is not None
     assert profile.first_name == "Integration"
     assert profile.last_name == "Faculty"
@@ -246,15 +261,17 @@ def test_google_callback_idempotent_second_login(client, monkeypatch, db_session
         return MockResponse({"access_token": "idem-token", "token_type": "Bearer"})
 
     async def mock_get(self, url, **kwargs):
-        return MockResponse({
-            "sub": "g-idempotent-sub-77777",
-            "email": "idempotent.test@skit.ac.in",
-            "name": "Idempotent Test",
-            "given_name": "Idempotent",
-            "family_name": "Test",
-            "picture": "https://example.com/avatar.jpg",
-            "email_verified": True,
-        })
+        return MockResponse(
+            {
+                "sub": "g-idempotent-sub-77777",
+                "email": "idempotent.test@skit.ac.in",
+                "name": "Idempotent Test",
+                "given_name": "Idempotent",
+                "family_name": "Test",
+                "picture": "https://example.com/avatar.jpg",
+                "email_verified": True,
+            }
+        )
 
     monkeypatch.setattr(httpx.AsyncClient, "post", mock_post)
     monkeypatch.setattr(httpx.AsyncClient, "get", mock_get)
@@ -276,10 +293,9 @@ def test_google_callback_idempotent_second_login(client, monkeypatch, db_session
     assert "/auth/callback?token=" in r2.headers["location"]
 
     from app.models.user import User
+
     users = (
-        db_session.query(User)
-        .filter(User.email == "idempotent.test@skit.ac.in")
-        .all()
+        db_session.query(User).filter(User.email == "idempotent.test@skit.ac.in").all()
     )
     assert len(users) == 1, "Second Google login must NOT create a duplicate user"
 
@@ -307,13 +323,16 @@ def test_register_validates_real_skit_email_format(client):
 
 
 @pytest.mark.sprint2
-@pytest.mark.parametrize("bad_email", [
-    "user@gmail.com",
-    "user@hotmail.com",
-    "user@skit.ac.in.com",       # lookalike domain
-    "user@skit.ac.in.evil.com",  # domain suffix attack
-    "user@fakeskit.ac.in",       # prefix attack
-])
+@pytest.mark.parametrize(
+    "bad_email",
+    [
+        "user@gmail.com",
+        "user@hotmail.com",
+        "user@skit.ac.in.com",  # lookalike domain
+        "user@skit.ac.in.evil.com",  # domain suffix attack
+        "user@fakeskit.ac.in",  # prefix attack
+    ],
+)
 def test_register_rejects_non_institutional_domains(client, bad_email):
     """
     SPRINT2: Any non-@skit.ac.in domain email must be rejected with HTTP 422.
@@ -323,21 +342,24 @@ def test_register_rejects_non_institutional_domains(client, bad_email):
         f"{settings.API_V1_STR}/auth/register",
         json={"email": bad_email, "password": "Password123!"},
     )
-    assert response.status_code == 422, (
-        f"Expected 422 for bad domain '{bad_email}', got {response.status_code}"
-    )
+    assert (
+        response.status_code == 422
+    ), f"Expected 422 for bad domain '{bad_email}', got {response.status_code}"
 
 
 @pytest.mark.sprint2
-@pytest.mark.parametrize("fake_email", [
-    "fake@skit.ac.in",
-    "dummy@skit.ac.in",
-    "temp@skit.ac.in",
-    "asdf@skit.ac.in",
-    "qwerty@skit.ac.in",
-    "11111@skit.ac.in",
-    "disposable@skit.ac.in",
-])
+@pytest.mark.parametrize(
+    "fake_email",
+    [
+        "fake@skit.ac.in",
+        "dummy@skit.ac.in",
+        "temp@skit.ac.in",
+        "asdf@skit.ac.in",
+        "qwerty@skit.ac.in",
+        "11111@skit.ac.in",
+        "disposable@skit.ac.in",
+    ],
+)
 def test_register_rejects_placeholder_and_fake_ids(client, fake_email):
     """
     SPRINT2: Placeholder / fake institutional IDs must be rejected with 422.
@@ -347,9 +369,9 @@ def test_register_rejects_placeholder_and_fake_ids(client, fake_email):
         f"{settings.API_V1_STR}/auth/register",
         json={"email": fake_email, "password": "ValidPass123!"},
     )
-    assert response.status_code == 422, (
-        f"Expected 422 for fake email '{fake_email}', got {response.status_code}"
-    )
+    assert (
+        response.status_code == 422
+    ), f"Expected 422 for fake email '{fake_email}', got {response.status_code}"
 
 
 # ── Sprint 2: Faculty Profile Endpoint Integration ────────────────────────────
@@ -397,9 +419,10 @@ def test_full_profile_lifecycle(client, auth_headers, db_session):
         },
         headers=auth_headers,
     )
-    assert create_resp.status_code in (200, 201), (
-        f"Profile creation failed: {create_resp.status_code} {create_resp.text}"
-    )
+    assert create_resp.status_code in (
+        200,
+        201,
+    ), f"Profile creation failed: {create_resp.status_code} {create_resp.text}"
 
     # 2. Read profile
     get_resp = client.get("/api/v1/profile/me", headers=auth_headers)
@@ -427,7 +450,11 @@ def test_education_endpoint_integration(client, auth_headers):
     """
     client.post(
         "/api/v1/profile/",
-        json={"first_name": "Integration", "last_name": "Faculty", "designation": "Assistant Professor"},
+        json={
+            "first_name": "Integration",
+            "last_name": "Faculty",
+            "designation": "Assistant Professor",
+        },
         headers=auth_headers,
     )
     # Add education entry
@@ -443,9 +470,10 @@ def test_education_endpoint_integration(client, auth_headers):
         },
         headers=auth_headers,
     )
-    assert add_resp.status_code in (200, 201), (
-        f"Education add failed: {add_resp.status_code} {add_resp.text}"
-    )
+    assert add_resp.status_code in (
+        200,
+        201,
+    ), f"Education add failed: {add_resp.status_code} {add_resp.text}"
     edu_id = add_resp.json().get("id")
 
     # List education
@@ -468,7 +496,11 @@ def test_experience_endpoint_integration(client, auth_headers):
     """
     client.post(
         "/api/v1/profile/",
-        json={"first_name": "Integration", "last_name": "Faculty", "designation": "Assistant Professor"},
+        json={
+            "first_name": "Integration",
+            "last_name": "Faculty",
+            "designation": "Assistant Professor",
+        },
         headers=auth_headers,
     )
     add_resp = client.post(
@@ -484,9 +516,10 @@ def test_experience_endpoint_integration(client, auth_headers):
         },
         headers=auth_headers,
     )
-    assert add_resp.status_code in (200, 201), (
-        f"Experience add failed: {add_resp.status_code} {add_resp.text}"
-    )
+    assert add_resp.status_code in (
+        200,
+        201,
+    ), f"Experience add failed: {add_resp.status_code} {add_resp.text}"
     exp_id = add_resp.json().get("id")
 
     list_resp = client.get("/api/v1/experience/", headers=auth_headers)
@@ -504,7 +537,11 @@ def test_achievement_endpoint_integration(client, auth_headers):
     """
     client.post(
         "/api/v1/profile/",
-        json={"first_name": "Integration", "last_name": "Faculty", "designation": "Assistant Professor"},
+        json={
+            "first_name": "Integration",
+            "last_name": "Faculty",
+            "designation": "Assistant Professor",
+        },
         headers=auth_headers,
     )
     add_resp = client.post(
@@ -517,9 +554,10 @@ def test_achievement_endpoint_integration(client, auth_headers):
         },
         headers=auth_headers,
     )
-    assert add_resp.status_code in (200, 201), (
-        f"Achievement add failed: {add_resp.status_code} {add_resp.text}"
-    )
+    assert add_resp.status_code in (
+        200,
+        201,
+    ), f"Achievement add failed: {add_resp.status_code} {add_resp.text}"
     ach_id = add_resp.json().get("id")
 
     list_resp = client.get("/api/v1/achievements/", headers=auth_headers)
@@ -571,6 +609,80 @@ def test_other_users_profile_not_accessible(client, auth_headers, db_session):
     assert me_resp.status_code in (200, 404)
     if me_resp.status_code == 200:
         data = me_resp.json()
-        assert data.get("user_id") != second_user_id, (
-            "Faculty user must NOT see another user's profile via /me"
-        )
+        assert (
+            data.get("user_id") != second_user_id
+        ), "Faculty user must NOT see another user's profile via /me"
+
+
+@pytest.mark.sprint2
+def test_full_academic_portfolio_integration_flow(client, auth_headers):
+    """
+    SPRINT2: End-to-end integration flow:
+    1. Create faculty profile with department
+    2. Add research publication
+    3. Add research project
+    4. Add patent
+    5. Retrieve public portfolio and verify all records are aggregated
+    """
+    # 1. Setup profile
+    client.post(
+        "/api/v1/profile/",
+        json={
+            "first_name": "DevOps",
+            "last_name": "Tester",
+            "designation": "Professor",
+            "department": "Computer Science & Engineering",
+        },
+        headers=auth_headers,
+    )
+    me_resp = client.get("/api/v1/profile/me", headers=auth_headers)
+    assert me_resp.status_code == 200
+    profile_id = me_resp.json()["id"]
+
+    # 2. Add Publication
+    pub_resp = client.post(
+        "/api/v1/publications/",
+        json={
+            "title": "Continuous Integration in Academic Portfolio Systems",
+            "publication_type": "Conference Paper",
+            "publication_year": 2024,
+            "citations": 5,
+        },
+        headers=auth_headers,
+    )
+    assert pub_resp.status_code == 201
+
+    # 3. Add Project
+    proj_resp = client.post(
+        "/api/v1/projects/",
+        json={
+            "title": "Automated CI Pipeline for Faculty Intelligence",
+            "status": "Ongoing",
+            "budget": 500000.0,
+        },
+        headers=auth_headers,
+    )
+    assert proj_resp.status_code == 201
+
+    # 4. Add Patent
+    pat_resp = client.post(
+        "/api/patents/",
+        json={
+            "title": "System and Method for Continuous Pipeline Validation",
+            "patent_number": "IN202411099999",
+            "filing_date": "2024-05-01",
+            "status": "FILED",
+            "inventors": "DevOps Tester",
+        },
+        headers=auth_headers,
+    )
+    assert pat_resp.status_code == 201
+
+    # 5. Public Portfolio verification (No auth headers required)
+    public_resp = client.get(f"/api/v1/portfolio/public/{profile_id}")
+    assert public_resp.status_code == 200
+    portfolio = public_resp.json()
+    assert portfolio["id"] == profile_id
+    assert len(portfolio.get("publications", [])) >= 1
+    assert len(portfolio.get("projects", [])) >= 1
+    assert len(portfolio.get("patents", [])) >= 1
