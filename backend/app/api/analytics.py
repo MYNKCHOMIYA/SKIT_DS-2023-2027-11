@@ -168,3 +168,55 @@ def get_research_focus(
     counts = Counter(all_terms)
     top = counts.most_common(limit)
     return [{"skill": name, "count": count} for name, count in top]
+
+
+@router.get("/completeness/me")
+def get_my_profile_completeness(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    """
+    Sprint 3 (Mayank - Data Science):
+    Calculates weighted profile completeness score and smart section recommendations.
+    """
+    from app.services.data_pipeline import FacultyETLPipeline
+    from app.models.project import Project
+    from app.models.patent import Patent
+
+    profile = (
+        db.query(FacultyProfile)
+        .filter(FacultyProfile.user_id == current_user.id)
+        .first()
+    )
+    if not profile:
+        return {
+            "score": 0.0,
+            "breakdown": {},
+            "is_complete": False,
+            "recommendations": ["Create your initial profile."],
+        }
+
+    pub_count = (
+        db.query(Publication).filter(Publication.faculty_id == profile.id).count()
+    )
+    proj_count = db.query(Project).filter(Project.faculty_id == profile.id).count()
+    pat_count = db.query(Patent).filter(Patent.faculty_profile_id == profile.id).count()
+
+    return FacultyETLPipeline.calculate_completeness_score(
+        profile, pub_count=pub_count, proj_count=proj_count, pat_count=pat_count
+    )
+
+
+@router.get("/etl/department-summary")
+def get_etl_department_summary(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_active_user),
+):
+    """
+    Sprint 3 (Mayank - Data Science):
+    Uses Pandas-based ETL aggregation to generate department publication velocity stats.
+    """
+    from app.services.data_pipeline import FacultyETLPipeline
+
+    summary_df = FacultyETLPipeline.extract_department_metrics(db)
+    return summary_df.to_dict(orient="records")
